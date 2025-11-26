@@ -158,4 +158,66 @@ public class CompositionDeleteTest {
         System.out.println("Test completed. Check the logs above to see which events were triggered.");
         System.out.println("========================================");
     }
+
+    @Test
+    public void testDeleteCompositionChildViaHeaderNavigation() throws Exception {
+        System.out.println("========================================");
+        System.out.println("Test: Delete Composition Child via Header Navigation");
+        System.out.println("========================================");
+
+        String createHeaderPayload = "{"
+            + "\"title\": \"Nav Delete Header\","
+            + "\"description\": \"Nav Delete Description\","
+            + "\"items\": ["
+            + "  {\"itemNo\": 30, \"productName\": \"Product NAV A\", \"quantity\": 2, \"price\": 50.00},"
+            + "  {\"itemNo\": 40, \"productName\": \"Product NAV B\", \"quantity\": 4, \"price\": 75.50}"
+            + "]"
+            + "}";
+
+        MvcResult createResult = mockMvc.perform(post("/odata/v4/odata/v4/composition/Headers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(createHeaderPayload))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        JsonNode createdHeader = objectMapper.readTree(createResult.getResponse().getContentAsString());
+        String headerId = createdHeader.get("ID").asText();
+        System.out.println("Created header for navigation test with ID: " + headerId);
+
+        mockMvc.perform(post("/odata/v4/odata/v4/composition/Headers(ID=" + headerId + ",IsActiveEntity=false)/CompositionService.draftActivate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/odata/v4/odata/v4/composition/Headers(ID=" + headerId + ",IsActiveEntity=true)/CompositionService.draftEdit")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"PreserveChanges\": true}"))
+                .andExpect(status().isOk());
+
+        MvcResult itemsResult = mockMvc.perform(
+                get("/odata/v4/odata/v4/composition/Headers(ID=" + headerId + ",IsActiveEntity=false)/items"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode itemsArray = objectMapper.readTree(itemsResult.getResponse().getContentAsString()).get("value");
+        assertTrue(itemsArray != null && itemsArray.size() > 0, "Draft items must exist before deletion");
+
+        String firstItemId = itemsArray.get(0).get("ID").asText();
+        System.out.println("Deleting draft item via navigation path. Item ID: " + firstItemId);
+
+        String navigationDeletePath = "/odata/v4/odata/v4/composition/Headers(ID=" + headerId
+                + ",IsActiveEntity=false)/items(ID=" + firstItemId + ",IsActiveEntity=false)";
+
+        mockMvc.perform(delete(navigationDeletePath))
+                .andExpect(status().isNoContent());
+
+        MvcResult navGetResult = mockMvc.perform(get(navigationDeletePath))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode navItemNode = objectMapper.readTree(navGetResult.getResponse().getContentAsString());
+        boolean flaggedAsDeleted = navItemNode.hasNonNull("isDeleted") && navItemNode.get("isDeleted").asBoolean();
+        System.out.println("Navigation deleted item marked isDeleted=" + flaggedAsDeleted);
+        assertTrue(flaggedAsDeleted, "Navigation delete must keep the draft row with isDeleted=true");
+    }
 }

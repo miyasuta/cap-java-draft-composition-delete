@@ -32,10 +32,17 @@ public class CompositionDeleteEventHandler implements EventHandler {
     public void onDraftCancelItem(DraftCancelEventContext context) {
         logger.info("====== EVENT_DRAFT_CANCEL triggered for Items (logical delete) ======");
 
-        Map<String, Object> rootKeys = CqnAnalyzer.create(context.getModel())
-                .analyze(context.getCqn())
-                .rootKeys();
-        String itemId = (String) rootKeys.get(Items.ID);
+        var analyzer = CqnAnalyzer.create(context.getModel());
+        var analysisResult = analyzer.analyze(context.getCqn());
+
+        Map<String, Object> targetKeys = analysisResult.targetKeys();
+        String itemId = targetKeys != null ? (String) targetKeys.get(Items.ID) : null;
+
+        if (itemId == null) {
+            Map<String, Object> rootKeys = analysisResult.rootKeys();
+            itemId = rootKeys != null ? (String) rootKeys.get(Items.ID) : null;
+        }
+
         if (itemId == null) {
             logger.warn("Draft cancel request did not contain an Item ID – skipping logical delete.");
             return;
@@ -44,11 +51,12 @@ public class CompositionDeleteEventHandler implements EventHandler {
         Items draftItem = Items.create();
         draftItem.setId(itemId);
         draftItem.setIsDeleted(Boolean.TRUE);
+        final String itemIdForPatch = itemId;
 
         DraftService draftService = (DraftService) context.getService();
         draftService.patchDraft(Update.entity(Items_.class)
                 .data(draftItem)
-                .where(item -> item.ID().eq(itemId).and(item.IsActiveEntity().eq(false))));
+                .where(item -> item.ID().eq(itemIdForPatch).and(item.IsActiveEntity().eq(false))));
 
         context.setResult(ResultBuilder.deletedRows(1).result());
         // 以降の標準DELETE処理を止めて論理削除を確定する

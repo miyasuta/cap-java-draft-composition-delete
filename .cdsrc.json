@@ -1,2 +1,14 @@
 {
+  "build": {
+    "target": ".",
+    "tasks": [
+      {
+        "for": "java",
+        "src": "srv",
+        "options": {
+          "model": ["db", "srv", "app"]
+        }
+      }
+    ]
+  }
 }

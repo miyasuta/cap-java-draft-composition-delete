@@ -14,4 +14,5 @@ entity Items : cuid, managed {
   productName : String(100);
   quantity    : Integer;
   price       : Decimal(10, 2);
+  isDeleted   : Boolean
 }
