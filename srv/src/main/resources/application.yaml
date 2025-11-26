@@ -1,0 +1,18 @@
+
+---
+spring:
+  config.activate.on-profile: default
+  sql.init.platform: h2
+  sql.init.mode: always
+
+cds:
+  data-source.auto-config.enabled: false
+  outbox:
+    enabled: false
+    persistent-outbox:
+      enabled: false
+
+logging:
+  level:
+    customer.cap_java_composition_delete_test.handlers: INFO
+    root: INFO

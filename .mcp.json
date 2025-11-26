@@ -1,0 +1,32 @@
+{
+    "mcpServers": {
+        "sap-docs-remote": {
+            "type": "http",
+            "url": "https://mcp-sap-docs.marianzeis.de/mcp"
+        },
+        "cds-mcp": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@cap-js/mcp-server"],
+            "env": {}
+        },
+        "ui5-mcp": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "@ui5/mcp-server"
+            ],
+            "env": {}
+        },
+        "fiori-mcp": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "--yes",
+                "@sap-ux/fiori-mcp-server@latest",
+                "fiori-mcp"
+            ],
+            "env": {}
+        }
+    }
+}

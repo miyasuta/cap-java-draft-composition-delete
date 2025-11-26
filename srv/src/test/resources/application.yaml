@@ -1,0 +1,4 @@
+logging:
+  level:
+    customer.cap_java_composition_delete_test.handlers: INFO
+    root: INFO
