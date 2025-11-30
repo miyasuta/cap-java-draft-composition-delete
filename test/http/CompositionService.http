@@ -1,0 +1,185 @@
+@server=http://localhost:8080
+@username=authenticated
+@password=
+
+
+### Headers
+# @name Headers_GET
+GET {{server}}/odata/v4/odata/v4/composition/Headers
+Authorization: Basic {{username}}:{{password}}
+
+
+### Headers Drafts GET
+# @name Headers_Drafts_GET
+GET {{server}}/odata/v4/odata/v4/composition/Headers?$filter=(IsActiveEntity eq false)
+Authorization: Basic {{username}}:{{password}}
+
+
+### 1. Headers Draft POST
+# @name Headers_Draft_POST
+POST {{server}}/odata/v4/odata/v4/composition/Headers
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "title": "title-599076",
+  "description": "description-599076",
+  "items": [
+    {
+      "ID": "18732314-4129-4ba1-80da-6f4665aabc38",
+      "itemNo": 16,
+      "productName": "productName-18732314",
+      "quantity": 13,
+      "price": 22536702.17
+    },
+    {
+      "ID": "18732315-0748-4045-bd4e-6d8663801028",
+      "itemNo": 23,
+      "productName": "productName-18732315",
+      "quantity": 56,
+      "price": 15142389.14
+    }
+  ]
+}
+
+
+### Result from POST request above
+@draftID={{Headers_Draft_POST.response.body.$.ID}}
+
+
+### Headers Draft PATCH
+# @name Headers_Draft_Patch
+PATCH {{server}}/odata/v4/odata/v4/composition/Headers(ID={{draftID}},IsActiveEntity=false)
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "title": "title-599076",
+  "description": "description-599076",
+  "items": [
+    {
+      "ID": "18732314-4129-4ba1-80da-6f4665aabc38",
+      "itemNo": 16,
+      "productName": "productName-18732314",
+      "quantity": 13,
+      "price": 22536702.17,
+      "isDeleted": true,
+      "createdAt": "2017-06-07T15:00:00.000Z",
+      "createdBy": "createdBy.b5hy2@example.net",
+      "modifiedAt": "2023-10-09T15:00:00.000Z",
+      "modifiedBy": "modifiedBy.b5hy2@example.net"
+    },
+    {
+      "ID": "18732315-0748-4045-bd4e-6d8663801028",
+      "itemNo": 23,
+      "productName": "productName-18732315",
+      "quantity": 56,
+      "price": 15142389.14,
+      "isDeleted": false,
+      "createdAt": "2001-07-03T15:00:00.000Z",
+      "createdBy": "createdBy.b5hy3@example.net",
+      "modifiedAt": "2016-10-12T15:00:00.000Z",
+      "modifiedBy": "modifiedBy.b5hy3@example.com"
+    }
+  ],
+  "createdAt": "2008-09-16T15:00:00.000Z",
+  "createdBy": "createdBy.cu90@example.net",
+  "modifiedAt": "2018-06-06T15:00:00.000Z",
+  "modifiedBy": "modifiedBy.cu90@example.org"
+}
+
+
+### Headers Draft Prepare
+# @name Headers_Draft_Prepare
+POST {{server}}/odata/v4/odata/v4/composition/Headers(ID={{draftID}},IsActiveEntity=false)/CompositionService.draftPrepare
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{}
+
+
+### 2. Headers Draft Activate
+# @name Headers_Draft_Activate
+POST {{server}}/odata/v4/odata/v4/composition/Headers(ID={{draftID}},IsActiveEntity=false)/CompositionService.draftActivate
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{}
+
+
+### 3. Headers Draft Edit
+POST {{server}}/odata/v4/odata/v4/composition/Headers(ID={{draftID}},IsActiveEntity=true)/CompositionService.draftEdit
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{}
+
+### 4. Headers Draft Delete Item
+DELETE {{server}}/odata/v4/odata/v4/composition/Headers(ID={{draftID}},IsActiveEntity=false)/items(ID=18732314-4129-4ba1-80da-6f4665aabc38,IsActiveEntity=false)
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+### 5. Get Draft Item
+GET {{server}}/odata/v4/odata/v4/composition/Headers(ID={{draftID}},IsActiveEntity=false)/items(ID=18732314-4129-4ba1-80da-6f4665aabc38,IsActiveEntity=false)
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+### 6. Get Active Item
+GET {{server}}/odata/v4/odata/v4/composition/Headers(ID={{draftID}},IsActiveEntity=true)/items(ID=18732314-4129-4ba1-80da-6f4665aabc38,IsActiveEntity=true)
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+### Items
+# @name Items_GET
+GET {{server}}/odata/v4/odata/v4/composition/Items
+Authorization: Basic {{username}}:{{password}}
+
+
+### Items
+# @name Items_POST
+POST {{server}}/odata/v4/odata/v4/composition/Items
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "18732314-4129-4ba1-80da-6f4665aabc38",
+  "itemNo": 16,
+  "productName": "productName-18732314",
+  "quantity": 13,
+  "price": 22536702.17,
+  "isDeleted": true,
+  "createdAt": "2017-06-07T15:00:00.000Z",
+  "createdBy": "createdBy.b5hy2@example.net",
+  "modifiedAt": "2023-10-09T15:00:00.000Z",
+  "modifiedBy": "modifiedBy.b5hy2@example.net"
+}
+
+
+### Items
+# @name Items_PATCH
+PATCH {{server}}/odata/v4/odata/v4/composition/Items/18732314-4129-4ba1-80da-6f4665aabc38
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "18732314-4129-4ba1-80da-6f4665aabc38",
+  "itemNo": 16,
+  "productName": "productName-18732314",
+  "quantity": 13,
+  "price": 22536702.17,
+  "isDeleted": true,
+  "createdAt": "2017-06-07T15:00:00.000Z",
+  "createdBy": "createdBy.b5hy2@example.net",
+  "modifiedAt": "2023-10-09T15:00:00.000Z",
+  "modifiedBy": "modifiedBy.b5hy2@example.net"
+}
+
+
+### Items
+# @name Items_DELETE
+DELETE {{server}}/odata/v4/odata/v4/composition/Items/18732314-4129-4ba1-80da-6f4665aabc38
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+
+

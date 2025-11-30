@@ -16,6 +16,8 @@ default-env.json
 
 **/node/
 **/node_modules/
+.npm-cache/
+.npm-logs/
 
 **/.mta/
 *.mtar

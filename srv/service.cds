@@ -6,3 +6,7 @@ service CompositionService @(path: '/odata/v4/composition') {
 
   entity Items as projection on my.Items;
 }
+
+annotate CompositionService.Items with {
+  isDeleted @readonly;
+}
