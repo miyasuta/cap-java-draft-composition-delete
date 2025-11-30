@@ -27,7 +27,7 @@ public class CompositionDeleteEventHandler implements EventHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(CompositionDeleteEventHandler.class);
 
-    // ドラフトモードでの子アイテム削除時は物理削除せずisDeletedフラグを立てる
+    // When deleting child items in draft mode, set the isDeleted flag instead of physical deletion
     @On(event = DraftService.EVENT_DRAFT_CANCEL, entity = Items_.CDS_NAME)
     public void onDraftCancelItem(DraftCancelEventContext context) {
         logger.info("====== EVENT_DRAFT_CANCEL triggered for Items (logical delete) ======");
@@ -59,13 +59,7 @@ public class CompositionDeleteEventHandler implements EventHandler {
                 .where(item -> item.ID().eq(itemIdForPatch).and(item.IsActiveEntity().eq(false))));
 
         context.setResult(ResultBuilder.deletedRows(1).result());
-        // 以降の標準DELETE処理を止めて論理削除を確定する
+        // Stop the subsequent standard DELETE processing and finalize the logical deletion
         context.setCompleted();
-    }
-
-    // 親ヘッダーのUPDATE時にコンポジション削除が反映される
-    @Before(event = CqnService.EVENT_UPDATE, entity = Headers_.CDS_NAME)
-    public void beforeUpdateHeader() {
-        logger.info("====== EVENT_UPDATE triggered for Headers (might include item deletion) ======");
     }
 }
